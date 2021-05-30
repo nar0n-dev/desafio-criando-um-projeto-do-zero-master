@@ -1,0 +1,17 @@
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  padding: 3.5rem 0rem;
+
+  button {
+    border: 0;
+    background: transparent;
+    color: var(--hightlight);
+    font-weight: 700;
+    margin: 3rem 0;
+  }
+}
+

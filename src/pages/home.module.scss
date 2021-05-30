@@ -1,0 +1,39 @@
+.posts {
+  max-width: 700px;
+
+  a {
+    display: block;
+    text-decoration: none;
+
+    & + a {
+      margin-top: 2rem;
+      padding-top: 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    &:hover h1 {
+      color: var(--hightlight);
+    }
+
+    h2 {
+      font-weight: 400;
+      font-size: 1.2rem;
+      color: var(--body);
+      line-height: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    time {
+      color: var(--info);
+      margin-right: 1.6rem;
+    }
+
+    .author {
+      color: var(--info)
+    }
+  }
+}

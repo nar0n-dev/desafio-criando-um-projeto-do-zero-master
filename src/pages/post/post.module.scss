@@ -1,0 +1,34 @@
+.imagePost {
+  width: 100%;
+  height: auto;
+}
+
+.title {
+  margin-bottom: 2rem;
+}
+
+.infos {
+  list-style: none;
+  color: var(--info);
+  margin-bottom: 2rem;
+
+  li {
+    float: left;
+
+    & + li {
+      margin-left: 1.5rem;
+    }
+  }
+}
+
+.subtitle {
+  margin: 2rem 0;
+}
+.contentPost {
+  color: var(--body);
+  line-height: 1.4rem;
+
+  p {
+    margin-bottom: 1.6rem;
+  }
+}
