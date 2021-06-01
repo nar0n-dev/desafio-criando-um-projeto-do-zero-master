@@ -21,6 +21,12 @@
   }
 }
 
+.editPost {
+  color: var(--info);
+  margin-top: -1rem;
+  margin-bottom: 2rem;
+}
+
 .subtitle {
   margin: 2rem 0;
 }
@@ -30,5 +36,24 @@
 
   p {
     margin-bottom: 1.6rem;
+  }
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  border-top: 1px solid #2b313c;
+
+  div {
+    margin-top: 2rem;
+  }
+
+  a {
+    color: var(--hightlight);
+    font-weight: 700;
+    text-decoration: none;
+    margin-top: 5rem;
   }
 }

@@ -11,9 +11,13 @@ import { AiOutlineUser, AiOutlineCalendar, AiOutlineFieldTime } from 'react-icon
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/router';
+import  Comments  from '../../components/Comments'
+
+import Link from 'next/link';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -30,15 +34,38 @@ interface Post {
   };
 }
 
-interface PostProps {
-  post: Post;
+interface Navegation {
+  prevPost: {
+    uid: string;
+    data: {
+      title: string;
+    };
+  }[];
+  nextPost: {
+    uid: string;
+    data: {
+      title: string;
+    };
+  }[];
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+interface PostProps {
+  post: Post;
+  preview: boolean;
+  nav: Navegation
+}
+
+export default function Post({ post, preview, nav }: PostProps): JSX.Element {
 
   const postFormated = format(
     new Date(post.first_publication_date),
     'dd MMM yyyy',
+    { locale: ptBR }
+  )
+
+  const postEdited = format(
+    new Date(post.last_publication_date),
+    "'* editado em' dd MMM yyyy', às' H':'m'",
     { locale: ptBR }
   )
 
@@ -83,6 +110,8 @@ export default function Post({ post }: PostProps): JSX.Element {
           <li><AiOutlineFieldTime /> {estimatedReadingTime} min</li>
         </ul>
 
+        <span className={styles.editPost}>{postEdited}</span>
+
         {post.data.content.map(content => {
           return (
             <article key={content.heading}>
@@ -92,7 +121,39 @@ export default function Post({ post }: PostProps): JSX.Element {
             </article>
           )
         })}
+
+        <section className={styles.navigation}>
+          {nav?.prevPost.length > 0 && (
+            <div>
+              <p>{nav.prevPost[0].data.title}</p>
+              <Link href={`/post/${nav.prevPost[0].uid}`}>
+                <a>Post anterior</a>
+              </Link>
+            </div>
+          )}
+
+          {nav?.nextPost.length > 0 && (
+            <div>
+              <p>{nav.nextPost[0].data.title}</p>
+              <Link href={`/post/${nav.nextPost[0].uid}`}>
+                <a>Próximo post</a>
+              </Link>
+            </div>
+          )}
+        </section>
       </main>
+
+
+
+      <Comments />
+
+      {preview && (
+        <aside>
+          <Link href="/api/exit-preview">
+            <a>Sair do modo Preview</a>
+          </Link>
+        </aside>
+      )}
     </>
   );
 }
@@ -115,15 +176,37 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params, preview = false,
+  previewData, }) => {
 
   const { slug } = params;
+
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(slug), {});
+
+  const response = await prismic.getByUID('posts', String(slug), { ref: previewData?.ref ?? null });
+
+  const prevPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.uid,
+      orderings: '[document.first_publication_date]',
+    }
+  )
+
+  const nextPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.uid,
+      orderings: '[document.last_publication_date desc]',
+    }
+  )
 
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -140,10 +223,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       }),
     },
   };
-  //console.log(JSON.stringify(post, null, 2)); // para ver objetos
+
+  // console.log(JSON.stringify(nextPost, null, 2)); // para ver objetos
   return {
     props: {
       post,
+      preview,
+      nav: {
+        prevPost: prevPost.results,
+        nextPost: nextPost.results,
+      }
     },
     revalidate: 60 * 60 * 24, // 24 hours
   };
